@@ -2,8 +2,10 @@ package main
 
 import (
 	"github.com/AlexandrSminrov/employees/bootstrap"
-
+	"github.com/AlexandrSminrov/employees/domains/repositories"
+	"github.com/AlexandrSminrov/employees/routers"
 	"log"
+	"net/http"
 )
 
 func main() {
@@ -11,8 +13,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := bootstrap.InitConnectDB(); err != nil {
+	if err := repositories.ConnectDB(); err != nil {
 		log.Fatal(err)
 	}
 
+	srv := &http.Server{
+		Handler: routers.GetRoutes(),
+		Addr:    ":8080",
+	}
+
+	log.Println("start")
+	err := srv.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
