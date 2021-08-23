@@ -6,6 +6,7 @@ import (
 	"github.com/AlexandrSminrov/employees/models"
 	"github.com/AlexandrSminrov/employees/repositories"
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"sort"

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/AlexandrSminrov/employees/bootstrap"
 	"github.com/AlexandrSminrov/employees/repositories"
 	"github.com/AlexandrSminrov/employees/routers"
 	"log"
@@ -9,9 +8,9 @@ import (
 )
 
 func main() {
-	if err := bootstrap.InitConfig(); err != nil {
-		log.Fatal(err)
-	}
+	//if err := bootstrap.InitConfig(); err != nil {
+	//	log.Fatal(err)
+	//}
 
 	if err := repositories.ConnectDB(); err != nil {
 		log.Fatal(err)
