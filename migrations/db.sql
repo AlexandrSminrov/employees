@@ -12,10 +12,10 @@ CREATE TABLE IF NOT EXISTS emploees (
 );
 INSERT INTO public.emploees (firstname, lastname, middlename, bdate,
                              addres, department, aboutMe, tnumber, email)
-    VALUES ('Иванов', 'Иван', 'Иванович', '10.11.1980', 'Москва', 'разраб',
+    VALUES ('Иванов', 'Иван', 'Иванович', '10.11.1980', 'Москва', 'HR',
             'qwe', '1234567890', 'exaple@ex.ex') RETURNING id;
 
 INSERT INTO public.emploees (firstname, lastname, middlename, bdate,
                              addres, department, aboutMe, tnumber, email)
     VALUES ('Иванов', 'Иван', 'Иванович', '10.11.1999', 'Москва', 'разраб',
-            'qwe', '1234567890', 'exaple@ex.ex') RETURNING id;
+            'HR', '1234567890', 'exaple@ex.ex') RETURNING id;

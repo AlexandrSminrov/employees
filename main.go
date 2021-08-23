@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/AlexandrSminrov/employees/bootstrap"
-	"github.com/AlexandrSminrov/employees/domains/repositories"
+	"github.com/AlexandrSminrov/employees/repositories"
 	"github.com/AlexandrSminrov/employees/routers"
 	"log"
 	"net/http"

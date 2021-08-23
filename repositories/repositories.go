@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/AlexandrSminrov/employees/domains/models"
+	"github.com/AlexandrSminrov/employees/models"
 	"os"
 	"reflect"
 	"strconv"
@@ -22,7 +22,7 @@ var ConnDb *DbQuery
 func ConnectDB() error {
 	dbStr := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
-		"localhost", 5432,
+		"db", 5432,
 		os.Getenv("pgUser"),
 		os.Getenv("pgPass"),
 		os.Getenv("pgDb"),
@@ -51,12 +51,12 @@ func ConnectDB() error {
 	return nil
 }
 
-func (db *DbQuery) GetAll(ctx context.Context) ([]byte, error) {
+func (db *DbQuery) GetAll(ctx context.Context) ([]models.DbStruct, error) {
 
 	ctx, cancel := context.WithDeadline(ctx, time.Now().Add(5*time.Second))
 	defer cancel()
 
-	query := "SELECT * FROM public.emploees"
+	var query = "SELECT * FROM public.emploees"
 
 	rows, err := db.DB.QueryContext(ctx, query)
 	if err != nil {
@@ -64,7 +64,7 @@ func (db *DbQuery) GetAll(ctx context.Context) ([]byte, error) {
 	}
 	defer rows.Close()
 
-	structs := []models.DbStruct{}
+	var structs []models.DbStruct
 
 	for rows.Next() {
 		var st models.DbStruct
@@ -90,12 +90,7 @@ func (db *DbQuery) GetAll(ctx context.Context) ([]byte, error) {
 		structs = append(structs, st)
 	}
 
-	res, err := json.Marshal(structs)
-	if err != nil {
-		return nil, fmt.Errorf("Marshal error: %v\n", err)
-	}
-
-	return res, nil
+	return structs, nil
 }
 
 func (db *DbQuery) AddEmployee(dbStruct *models.DbStruct, ctx context.Context) (int, error) {

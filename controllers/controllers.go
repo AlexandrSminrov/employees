@@ -3,17 +3,20 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/AlexandrSminrov/employees/domains/models"
-	"github.com/AlexandrSminrov/employees/domains/repositories"
+	"github.com/AlexandrSminrov/employees/models"
+	"github.com/AlexandrSminrov/employees/repositories"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"sort"
 )
 
 func GetAll(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Req GET ALL ip: %v\n", r.RemoteAddr)
 
-	res, err := repositories.ConnDb.GetAll(r.Context())
+	sortBy := r.URL.Query().Get("sortBy")
+
+	st, err := repositories.ConnDb.GetAll(r.Context())
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -21,6 +24,20 @@ func GetAll(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 
 		}
+		return
+	}
+
+	if sortBy == "idDown" {
+		sort.Slice(st, func(i, j int) (less bool) {
+			return st[i].ID > st[j].ID
+		})
+	}
+
+	res, err := json.Marshal(st)
+	if err != nil {
+		log.Println("Marshal json error")
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, err)
 		return
 	}
 
@@ -82,7 +99,7 @@ func UpEmployee(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(st); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintln(w, "JSON ERROR1")
+		fmt.Fprintln(w, "JSON ERROR")
 		log.Println("JSON ERROR", err)
 		return
 	}

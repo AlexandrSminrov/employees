@@ -1,8 +1,19 @@
 version: "3.7"
 
 services:
+  app:
+    image: golang:alpine
+    env_file:
+      - .env
+    volumes:
+      - .:/go/src/employee
+    working_dir: /go/src/employee
+    ports:
+      - "8080:8080"
+    command: go run main.go
+
   db:
-    image: "postgres:13"
+    image: postgres:alpine
     restart: on-failure
     healthcheck:
       test: pg_isready -U pqadmin -d pqadmin
@@ -17,12 +28,3 @@ services:
       POSTGRES_USER: pgadmin
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: employeesPg
-
-  app:
-      image: golang:alpine
-      volumes:
-        - .:/go/src/employee
-      working_dir: /go/src/employee
-      ports:
-        - "8080:8080"
-      command: go run main.go
