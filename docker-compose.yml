@@ -16,7 +16,7 @@ services:
     image: postgres:alpine
     restart: on-failure
     healthcheck:
-      test: pg_isready -U pqadmin -d pqadmin
+      test: pg_isready -U pgadmin -d employeesPg
       interval: 10s
       timeout: 3s
       retries: 3
