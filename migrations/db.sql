@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS emploees (
 INSERT INTO public.emploees (firstname, lastname, middlename, bdate,
                              addres, department, aboutMe, tnumber, email)
     VALUES ('Иванов', 'Иван', 'Иванович', '10.11.1980', 'Москва', 'HR',
-            'qwe', '1234567890', 'exaple@ex.ex') RETURNING id;
+            'qwe', '9000000000', 'exaple@ex.ex') RETURNING id;
 
 INSERT INTO public.emploees (firstname, lastname, middlename, bdate,
                              addres, department, aboutMe, tnumber, email)

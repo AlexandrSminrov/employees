@@ -78,7 +78,7 @@ func (db *DbQuery) GetAll(ctx context.Context) ([]models.DbStruct, error) {
 			&st.Address,
 			&st.Department,
 			&st.AboutMe,
-			&st.Pnumber,
+			&st.Tnumber,
 			&st.Email,
 		); err != nil {
 			return nil, err
@@ -108,7 +108,7 @@ func (db *DbQuery) AddEmployee(dbStruct *models.DbStruct, ctx context.Context) (
 		dbStruct.Address,
 		dbStruct.Department,
 		dbStruct.AboutMe,
-		dbStruct.Pnumber,
+		dbStruct.Tnumber,
 		dbStruct.Email,
 	)
 
@@ -146,7 +146,7 @@ func (db *DbQuery) GetByID(id string, ctx context.Context) ([]byte, error) {
 			&st.Address,
 			&st.Department,
 			&st.AboutMe,
-			&st.Pnumber,
+			&st.Tnumber,
 			&st.Email,
 		); err != nil {
 			return nil, err

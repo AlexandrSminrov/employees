@@ -31,14 +31,14 @@ type DbStruct struct {
 	Address    string `json:"addres,omitempty"`
 	Department string `json:"department,omitempty"`
 	AboutMe    string `json:"aboutme,omitempty"`
-	Pnumber    string `json:"tnumber,omitempty"` //pfvtybnm
+	Tnumber    string `json:"tnumber,omitempty"`
 	Email      string `json:"email,omitempty"`
 }
 
 func (st *DbStruct) Validate() error {
 
 	flm := regexp.MustCompile(`[^А-Яа-я]`)
-	//date := regexp.MustCompile(`^([1-9]|[12][0-9]|3[01])[.]([1-9]|1[012])[.](19|20)\d\d$`)
+	date := regexp.MustCompile(`[^0-9.]`)
 	dep := regexp.MustCompile(`[^A-Za-zА-Яа-я]`)
 	phone := regexp.MustCompile(`[^0-9]`)
 	addres := regexp.MustCompile(`[^а-яА-Я0-9,.\s№]`)
@@ -56,9 +56,9 @@ func (st *DbStruct) Validate() error {
 		return fmt.Errorf("MiddleName ERROR")
 	}
 
-	//if !date.MatchString(st.BDate) {
-	//	return fmt.Errorf("Date ERROR")
-	//}
+	if date.MatchString(st.BDate) {
+		return fmt.Errorf("Date ERROR ")
+	}
 
 	if addres.MatchString(st.Address) {
 		return fmt.Errorf("Address ERROR")
@@ -72,7 +72,7 @@ func (st *DbStruct) Validate() error {
 		return fmt.Errorf("AboutMe ERROR")
 	}
 
-	if phone.MatchString(st.Pnumber) {
+	if phone.MatchString(st.Tnumber) {
 		return fmt.Errorf("Pnumber ERROR")
 	}
 

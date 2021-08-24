@@ -28,7 +28,7 @@ func GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if sortBy == "idDown" {
+	if sortBy == "idUP" {
 		sort.Slice(st, func(i, j int) (less bool) {
 			return st[i].ID > st[j].ID
 		})

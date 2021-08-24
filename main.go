@@ -8,9 +8,6 @@ import (
 )
 
 func main() {
-	//if err := bootstrap.InitConfig(); err != nil {
-	//	log.Fatal(err)
-	//}
 
 	if err := repositories.ConnectDB(); err != nil {
 		log.Fatal(err)
