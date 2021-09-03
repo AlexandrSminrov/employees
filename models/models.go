@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"regexp"
+	"time"
 )
 
 type Config struct {
@@ -38,7 +39,6 @@ type DbStruct struct {
 func (st *DbStruct) Validate() error {
 
 	flm := regexp.MustCompile(`[^А-Яа-я]`)
-	date := regexp.MustCompile(`[^0-9.]`)
 	dep := regexp.MustCompile(`[^A-Za-zА-Яа-я]`)
 	phone := regexp.MustCompile(`[^0-9]`)
 	addres := regexp.MustCompile(`[^а-яА-Я0-9,.\s№]`)
@@ -56,16 +56,16 @@ func (st *DbStruct) Validate() error {
 		return fmt.Errorf("MiddleName ERROR")
 	}
 
-	if date.MatchString(st.BDate) {
+	if _, err := time.Parse("02.01.2006", st.BDate); err != nil && len(st.BDate) > 1 {
 		return fmt.Errorf("Date ERROR ")
 	}
 
 	if addres.MatchString(st.Address) {
-		return fmt.Errorf("Address ERROR")
+		return fmt.Errorf("Address ERROR ")
 	}
 
 	if dep.MatchString(st.Department) {
-		return fmt.Errorf("Department ERROR")
+		return fmt.Errorf("Department ERROR ")
 	}
 
 	if addres.MatchString(st.AboutMe) {
@@ -73,11 +73,11 @@ func (st *DbStruct) Validate() error {
 	}
 
 	if phone.MatchString(st.Tnumber) {
-		return fmt.Errorf("Pnumber ERROR")
+		return fmt.Errorf("Phone number ERROR ")
 	}
 
-	if !email.MatchString(st.Email) {
-		return fmt.Errorf("Email ERROR")
+	if !email.MatchString(st.Email) && len(st.Email) > 1 {
+		return fmt.Errorf("Email ERROR ")
 	}
 
 	return nil
