@@ -1,8 +1,5 @@
 # Сервис управления учетными данными сотрудников
 
-### Скачать
-```go get github.com/AlexandrSminrov/employees```
-
 ### запуск сервиса
  ```make build``` 
   или 
