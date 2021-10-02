@@ -108,13 +108,13 @@ func TestDbStruct_Validate(t *testing.T) {
 		{
 			{
 				Req: DbStruct{
-					BDate: "31.12.1998",
+					BDate: "12.31.1998",
 				},
 				Res: nil,
 			},
 			{
 				Req: DbStruct{
-					BDate: "29.02.1999",
+					BDate: "02.29.1999",
 				},
 				Res: fmt.Errorf("Date ERROR "),
 			},
