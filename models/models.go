@@ -56,7 +56,7 @@ func (st *DbStruct) Validate() error {
 		return fmt.Errorf("MiddleName ERROR")
 	}
 
-	if _, err := time.Parse("02.01.2006", st.BDate); err != nil && len(st.BDate) > 1 {
+	if _, err := time.Parse("01.02.2006", st.BDate); err != nil && len(st.BDate) > 1 {
 		return fmt.Errorf("Date ERROR ")
 	}
 
