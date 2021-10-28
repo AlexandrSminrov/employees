@@ -1,26 +1,27 @@
 package main
 
 import (
-	"github.com/AlexandrSminrov/employees/repositories"
-	"github.com/AlexandrSminrov/employees/routers"
 	"log"
-	"net/http"
+
+	"github.com/AlexandrSminrov/employees/bootstrap"
+	"github.com/AlexandrSminrov/employees/configs"
 )
 
+// @title Employees
+// @version 1.0
+// @description employee base management
+// @host localhost:8080
+// @BasePath /
 func main() {
-
-	if err := repositories.ConnectDB(); err != nil {
-		log.Fatal(err)
-	}
-
-	srv := &http.Server{
-		Handler: routers.GetRoutes(),
-		Addr:    ":8080",
-	}
-
-	log.Println("start")
-	err := srv.ListenAndServe()
+	config, err := configs.GetConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	dbClient, err := bootstrap.InitDB(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	bootstrap.InitServer(dbClient, config)
 }

@@ -1,85 +1,90 @@
 package models
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"regexp"
+	"time"
 )
 
-type Config struct {
-	Application struct {
-		Name    string `json:"name"`
-		Version string `json:"version"`
-	}
-	Database struct {
-		Type         string
-		Host         string
-		Port         int
-		User         string `config:"envVar"`
-		Password     string `config:"envVar"`
-		Dbname       string `config:"envVar"`
-		MaxIdleConns int
-		MaxOpenConns int
-	}
+// DBClient methods db
+type DBClient interface {
+	ConnectDB() error
+	GetAll(ctx context.Context) ([]*DbStruct, error)
+	AddEmployee(dbStruct *DbStruct, ctx context.Context) (int, error)
+	GetByID(id string, ctx context.Context) ([]byte, error)
+	UpEmployee(id string, st *DbStruct, ctx context.Context) error
 }
 
+// Server handle server
+type Server interface {
+	GetAll(w http.ResponseWriter, r *http.Request)
+	AddEmployee(w http.ResponseWriter, r *http.Request)
+	GetByID(w http.ResponseWriter, r *http.Request)
+	UpEmployee(w http.ResponseWriter, r *http.Request)
+}
+
+// regexp patterns
+var (
+	onlyRu    = regexp.MustCompile(`[^А-Яа-я]`)
+	onlyRuEng = regexp.MustCompile(`[^A-Za-zА-Яа-я]`)
+	onlyNum   = regexp.MustCompile(`[^0-9]`)
+	address   = regexp.MustCompile(`[^а-яА-Я0-9,.\s№]`)
+	email     = regexp.MustCompile(`[^а-яА-Я0-9,.\s№]`)
+)
+
+// DbStruct base structure
 type DbStruct struct {
-	ID         int    `json:"id,omitempty"`
-	FirstName  string `json:"firstname,omitempty"`
-	LastName   string `json:"lastname,omitempty"`
-	MiddleName string `json:"middlename,omitempty"`
-	BDate      string `json:"bdate,omitempty"`
-	Address    string `json:"addres,omitempty"`
-	Department string `json:"department,omitempty"`
-	AboutMe    string `json:"aboutme,omitempty"`
-	Tnumber    string `json:"tnumber,omitempty"`
-	Email      string `json:"email,omitempty"`
+	ID          int    `json:"id,omitempty"`
+	FirstName   string `json:"firstname,omitempty"`
+	LastName    string `json:"lastname,omitempty"`
+	MiddleName  string `json:"middlename,omitempty"`
+	DateOfBirth string `json:"date_of_birth,omitempty"`
+	Address     string `json:"addres,omitempty"`
+	Department  string `json:"department,omitempty"`
+	AboutMe     string `json:"aboutme,omitempty"`
+	Phone       string `json:"phone,omitempty"`
+	Email       string `json:"email,omitempty"`
 }
 
+// Validate verifies the request
 func (st *DbStruct) Validate() error {
-
-	flm := regexp.MustCompile(`[^А-Яа-я]`)
-	date := regexp.MustCompile(`[^0-9.]`)
-	dep := regexp.MustCompile(`[^A-Za-zА-Яа-я]`)
-	phone := regexp.MustCompile(`[^0-9]`)
-	addres := regexp.MustCompile(`[^а-яА-Я0-9,.\s№]`)
-	email := regexp.MustCompile(`[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$`)
-
-	if flm.MatchString(st.FirstName) {
+	if onlyRu.MatchString(st.FirstName) {
 		return fmt.Errorf("FirstName ERROR")
 	}
 
-	if flm.MatchString(st.LastName) {
+	if onlyRu.MatchString(st.LastName) {
 		return fmt.Errorf("LastName ERROR")
 	}
 
-	if flm.MatchString(st.MiddleName) {
+	if onlyRu.MatchString(st.MiddleName) {
 		return fmt.Errorf("MiddleName ERROR")
 	}
 
-	if date.MatchString(st.BDate) {
-		return fmt.Errorf("Date ERROR ")
+	if _, err := time.Parse("01.02.2006", st.DateOfBirth); err != nil && len(st.DateOfBirth) > 1 {
+		return fmt.Errorf("date ERROR ")
 	}
 
-	if addres.MatchString(st.Address) {
-		return fmt.Errorf("Address ERROR")
+	if address.MatchString(st.Address) {
+		return fmt.Errorf("address ERROR ")
 	}
 
-	if dep.MatchString(st.Department) {
-		return fmt.Errorf("Department ERROR")
+	if onlyRuEng.MatchString(st.Department) {
+		return fmt.Errorf("department ERROR ")
 	}
 
-	if addres.MatchString(st.AboutMe) {
+	if address.MatchString(st.AboutMe) {
 		return fmt.Errorf("AboutMe ERROR")
 	}
 
-	if phone.MatchString(st.Tnumber) {
-		return fmt.Errorf("Pnumber ERROR")
+	if onlyNum.MatchString(st.Phone) {
+		return fmt.Errorf("phone number ERROR ")
 	}
 
-	if !email.MatchString(st.Email) {
-		return fmt.Errorf("Email ERROR")
+	if !email.MatchString(st.Email) && len(st.Email) > 1 {
+		return fmt.Errorf("email ERROR ")
 	}
 
 	return nil
-
 }

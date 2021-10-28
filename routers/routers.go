@@ -1,9 +1,12 @@
 package routers
 
 import (
-	"github.com/AlexandrSminrov/employees/controllers"
-	"github.com/gorilla/mux"
 	"net/http"
+
+	_ "github.com/AlexandrSminrov/employees/docs"
+	"github.com/AlexandrSminrov/employees/models"
+	"github.com/gorilla/mux"
+	"github.com/swaggo/http-swagger"
 )
 
 type route struct {
@@ -13,31 +16,31 @@ type route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-func GetRoutes() *mux.Router {
+func GetRoutes(s models.Server) *mux.Router {
 	routes := []route{
 		{
 			"AllEmployees",
-			"GET",
+			http.MethodGet,
 			"/employee",
-			controllers.GetAll,
+			s.GetAll,
 		},
 		{
 			"AddEmployee",
-			"POST",
+			http.MethodPost,
 			"/employee",
-			controllers.AddEmployee,
+			s.AddEmployee,
 		},
 		{
 			"GetEmployee",
-			"GET",
+			http.MethodGet,
 			"/employee/{id:[0-9]+}",
-			controllers.GetByID,
+			s.GetByID,
 		},
 		{
 			"UpEmployee",
-			"PUT",
+			http.MethodPut,
 			"/employee/{id:[0-9]+}",
-			controllers.UpEmployee,
+			s.UpEmployee,
 		},
 	}
 
@@ -47,6 +50,7 @@ func GetRoutes() *mux.Router {
 		m.Methods(r.Method).Name(r.Name).Path(r.Path).Handler(r.HandlerFunc)
 	}
 
+	// swagger
+	m.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
 	return m
-
 }
