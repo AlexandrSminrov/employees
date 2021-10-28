@@ -1,0 +1,141 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "employee base management",
+        "title": "Employees",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/employee": {
+            "get": {
+                "description": "return all records from the table \"employee\"",
+                "tags": [
+                    "employee"
+                ],
+                "summary": "return all records from the table",
+                "operationId": "GetAll",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DbStruct"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "string: error"
+                    }
+                }
+            },
+            "post": {
+                "description": "add employee from the table \"employee\"",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employee"
+                ],
+                "summary": "add employee",
+                "operationId": "AddEmployee",
+                "parameters": [
+                    {
+                        "description": "Body request",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DbStruct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "intenger id"
+                    },
+                    "400": {
+                        "description": "string error json or is not valid date"
+                    }
+                }
+            }
+        },
+        "/employee/{employeeID}": {
+            "get": {
+                "description": "get employee by id from the table \"employee\"",
+                "tags": [
+                    "employee"
+                ],
+                "summary": "get employee",
+                "operationId": "GetByID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DbStruct"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "update employee by id from the table \"employee\"",
+                "tags": [
+                    "employee"
+                ],
+                "summary": "update employee",
+                "operationId": "UpEmployee",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DbStruct"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.DbStruct": {
+            "type": "object",
+            "properties": {
+                "aboutme": {
+                    "type": "string"
+                },
+                "addres": {
+                    "type": "string"
+                },
+                "date_of_birth": {
+                    "type": "string"
+                },
+                "department": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstname": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastname": {
+                    "type": "string"
+                },
+                "middlename": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

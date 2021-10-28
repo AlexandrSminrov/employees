@@ -5,80 +5,83 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/AlexandrSminrov/employees/models"
-	"os"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
+
+	"github.com/AlexandrSminrov/employees/configs"
+	"github.com/AlexandrSminrov/employees/models"
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-type DbQuery struct {
-	DB *sql.DB
+// dbClient client model
+type dbClient struct {
+	DB     *sql.DB
+	config *configs.DBConfig
 }
 
-var ConnDb *DbQuery
+func NewDBClient(config *configs.DBConfig) models.DBClient {
+	return &dbClient{
+		config: config,
+	}
+}
 
-func ConnectDB() error {
-	dbStr := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		"db", 5432,
-		os.Getenv("pgUser"),
-		os.Getenv("pgPass"),
-		os.Getenv("pgDb"),
+// ConnectDB the function of connecting to the database
+func (db *dbClient) ConnectDB() error {
+	if db.DB != nil {
+		db.DB.Close()
+	}
+
+	dbStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		db.config.Host,
+		db.config.Port,
+		db.config.User,
+		db.config.Password,
+		db.config.DBName,
 	)
 
-	db, err := sql.Open("postgres", dbStr)
+	var err error
+
+	db.DB, err = sql.Open("pgx", dbStr)
 	if err != nil {
-		return fmt.Errorf("Connection error: %v ", err)
+		return fmt.Errorf("connection error: %v ", err)
 	}
 
-	maxConns, err := strconv.Atoi(os.Getenv("MaxConns"))
-	if err != nil {
-		return fmt.Errorf("MaxConns read error: %v ", err)
-	}
-
-	idleConns, err := strconv.Atoi(os.Getenv("IdleConns"))
-	if err != nil {
-		return fmt.Errorf("IdleConns read error: %v ", err)
-	}
-
-	db.SetMaxOpenConns(maxConns)
-	db.SetMaxIdleConns(idleConns)
-
-	ConnDb = &DbQuery{DB: db}
+	db.DB.SetMaxOpenConns(db.config.MaxConn)
+	db.DB.SetMaxIdleConns(db.config.MaxIdleConn)
+	db.DB.SetConnMaxIdleTime(db.config.TimeIdleConn)
 
 	return nil
 }
 
-func (db *DbQuery) GetAll(ctx context.Context) ([]models.DbStruct, error) {
-
+//
+func (db *dbClient) GetAll(ctx context.Context) ([]*models.DbStruct, error) {
 	ctx, cancel := context.WithDeadline(ctx, time.Now().Add(5*time.Second))
 	defer cancel()
 
-	var query = "SELECT * FROM public.emploees"
+	query := "SELECT id, firstname, lastname, middlename, date_of_birth,addres, department, about_me, phone, email  FROM public.emploees"
 
 	rows, err := db.DB.QueryContext(ctx, query)
 	if err != nil {
-		return nil, fmt.Errorf("Query %v \nError: %v\n", query, err)
+		return nil, fmt.Errorf("query %v\nerror: %v", query, err)
 	}
 	defer rows.Close()
 
-	var structs []models.DbStruct
+	var structs []*models.DbStruct
 
 	for rows.Next() {
 		var st models.DbStruct
 
-		if err := rows.Scan(
+		if err = rows.Scan(
 			&st.ID,
 			&st.FirstName,
 			&st.LastName,
 			&st.MiddleName,
-			&st.BDate,
+			&st.DateOfBirth,
 			&st.Address,
 			&st.Department,
 			&st.AboutMe,
-			&st.Tnumber,
+			&st.Phone,
 			&st.Email,
 		); err != nil {
 			return nil, err
@@ -87,14 +90,13 @@ func (db *DbQuery) GetAll(ctx context.Context) ([]models.DbStruct, error) {
 		st.Address = ""
 		st.AboutMe = ""
 
-		structs = append(structs, st)
+		structs = append(structs, &st)
 	}
 
 	return structs, nil
 }
 
-func (db *DbQuery) AddEmployee(dbStruct *models.DbStruct, ctx context.Context) (int, error) {
-
+func (db *dbClient) AddEmployee(dbStruct *models.DbStruct, ctx context.Context) (int, error) {
 	query := "INSERT INTO public.emploees (firstname, lastname, middlename, bdate,addres, department, aboutMe, tnumber, email)" +
 		"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9 ) RETURNING id"
 
@@ -104,14 +106,13 @@ func (db *DbQuery) AddEmployee(dbStruct *models.DbStruct, ctx context.Context) (
 	rows, err := db.DB.QueryContext(ctx, query, dbStruct.FirstName,
 		dbStruct.LastName,
 		dbStruct.MiddleName,
-		dbStruct.BDate,
+		dbStruct.DateOfBirth,
 		dbStruct.Address,
 		dbStruct.Department,
 		dbStruct.AboutMe,
-		dbStruct.Tnumber,
+		dbStruct.Phone,
 		dbStruct.Email,
 	)
-
 	if err != nil {
 		return 0, err
 	}
@@ -119,17 +120,16 @@ func (db *DbQuery) AddEmployee(dbStruct *models.DbStruct, ctx context.Context) (
 
 	var id int
 	for rows.Next() {
-		if err := rows.Scan(&id); err != nil {
-			return 0, fmt.Errorf("Row err: %v ", err)
+		if err = rows.Scan(&id); err != nil {
+			return 0, fmt.Errorf("row err: %v ", err)
 		}
 	}
 
 	return id, err
 }
 
-func (db *DbQuery) GetByID(id string, ctx context.Context) ([]byte, error) {
-
-	rows, err := db.DB.QueryContext(ctx, "select * from public.emploees where id in ($1)", id)
+func (db *dbClient) GetByID(id string, ctx context.Context) ([]byte, error) {
+	rows, err := db.DB.QueryContext(ctx, "select id, firstname, lastname, middlename, date_of_birth,addres, department, about_me, phone, email from public.emploees where id in ($1)", id)
 	if err != nil {
 		return nil, err
 	}
@@ -137,16 +137,16 @@ func (db *DbQuery) GetByID(id string, ctx context.Context) ([]byte, error) {
 	var st models.DbStruct
 
 	for rows.Next() {
-		if err := rows.Scan(
+		if err = rows.Scan(
 			&st.ID,
 			&st.FirstName,
 			&st.LastName,
 			&st.MiddleName,
-			&st.BDate,
+			&st.DateOfBirth,
 			&st.Address,
 			&st.Department,
 			&st.AboutMe,
-			&st.Tnumber,
+			&st.Phone,
 			&st.Email,
 		); err != nil {
 			return nil, err
@@ -159,14 +159,13 @@ func (db *DbQuery) GetByID(id string, ctx context.Context) ([]byte, error) {
 
 	res, err := json.Marshal(st)
 	if err != nil {
-		return nil, fmt.Errorf("Marshal error: %v\n", err)
+		return nil, fmt.Errorf("marshal error: %v", err)
 	}
 
 	return res, nil
 }
 
-func (db *DbQuery) UpEmploee(id string, st *models.DbStruct, ctx context.Context) error {
-
+func (db *dbClient) UpEmployee(id string, st *models.DbStruct, ctx context.Context) error {
 	query := "UPDATE public.emploees SET "
 
 	v := reflect.ValueOf(*st)

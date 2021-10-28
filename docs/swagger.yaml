@@ -1,0 +1,94 @@
+basePath: /
+definitions:
+  models.DbStruct:
+    properties:
+      aboutme:
+        type: string
+      addres:
+        type: string
+      date_of_birth:
+        type: string
+      department:
+        type: string
+      email:
+        type: string
+      firstname:
+        type: string
+      id:
+        type: integer
+      lastname:
+        type: string
+      middlename:
+        type: string
+      phone:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: employee base management
+  title: Employees
+  version: "1.0"
+paths:
+  /employee:
+    get:
+      description: return all records from the table "employee"
+      operationId: GetAll
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DbStruct'
+            type: array
+        "500":
+          description: 'string: error'
+      summary: return all records from the table
+      tags:
+      - employee
+    post:
+      consumes:
+      - application/json
+      description: add employee from the table "employee"
+      operationId: AddEmployee
+      parameters:
+      - description: Body request
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.DbStruct'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: intenger id
+        "400":
+          description: string error json or is not valid date
+      summary: add employee
+      tags:
+      - employee
+  /employee/{employeeID}:
+    get:
+      description: get employee by id from the table "employee"
+      operationId: GetByID
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DbStruct'
+      summary: get employee
+      tags:
+      - employee
+    put:
+      description: update employee by id from the table "employee"
+      operationId: UpEmployee
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DbStruct'
+      summary: update employee
+      tags:
+      - employee
+swagger: "2.0"

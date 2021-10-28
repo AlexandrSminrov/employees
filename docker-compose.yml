@@ -9,7 +9,7 @@ services:
       - .:/go/src/employee
     working_dir: /go/src/employee
     ports:
-      - "8080:8080"
+       - "8080:8080"
     command: go run main.go
 
   db:
