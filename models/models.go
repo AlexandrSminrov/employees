@@ -12,9 +12,9 @@ import (
 type DBClient interface {
 	ConnectDB() error
 	GetAll(ctx context.Context) ([]*DbStruct, error)
-	AddEmployee(dbStruct *DbStruct, ctx context.Context) (int, error)
-	GetByID(id string, ctx context.Context) ([]byte, error)
-	UpEmployee(id string, st *DbStruct, ctx context.Context) error
+	AddEmployee(ctx context.Context, dbStruct *DbStruct) (int, error)
+	GetByID(ctx context.Context, id string) ([]byte, error)
+	UpEmployee(ctx context.Context, id string, st *DbStruct) error
 }
 
 // Server handle server
