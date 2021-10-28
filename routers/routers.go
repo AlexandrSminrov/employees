@@ -3,7 +3,7 @@ package routers
 import (
 	"net/http"
 
-	_ "github.com/AlexandrSminrov/employees/docs"
+	_ "github.com/AlexandrSminrov/employees/docs" // swagger docs
 	"github.com/AlexandrSminrov/employees/models"
 	"github.com/gorilla/mux"
 	"github.com/swaggo/http-swagger"
@@ -16,6 +16,7 @@ type route struct {
 	HandlerFunc http.HandlerFunc
 }
 
+// GetRoutes getting routers
 func GetRoutes(s models.Server) *mux.Router {
 	routes := []route{
 		{

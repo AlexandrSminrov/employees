@@ -11,7 +11,7 @@ import (
 
 	"github.com/AlexandrSminrov/employees/configs"
 	"github.com/AlexandrSminrov/employees/models"
-	_ "github.com/jackc/pgx/v4/stdlib"
+	_ "github.com/jackc/pgx/v4/stdlib" // driver pgx
 )
 
 // dbClient client model
@@ -20,6 +20,7 @@ type dbClient struct {
 	config *configs.DBConfig
 }
 
+// NewDBClient ...
 func NewDBClient(config *configs.DBConfig) models.DBClient {
 	return &dbClient{
 		config: config,
@@ -96,7 +97,8 @@ func (db *dbClient) GetAll(ctx context.Context) ([]*models.DbStruct, error) {
 	return structs, nil
 }
 
-func (db *dbClient) AddEmployee(dbStruct *models.DbStruct, ctx context.Context) (int, error) {
+// AddEmployee ...
+func (db *dbClient) AddEmployee(ctx context.Context, dbStruct *models.DbStruct) (int, error) {
 	query := "INSERT INTO public.emploees (firstname, lastname, middlename, bdate,addres, department, aboutMe, tnumber, email)" +
 		"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9 ) RETURNING id"
 
@@ -128,7 +130,7 @@ func (db *dbClient) AddEmployee(dbStruct *models.DbStruct, ctx context.Context) 
 	return id, err
 }
 
-func (db *dbClient) GetByID(id string, ctx context.Context) ([]byte, error) {
+func (db *dbClient) GetByID(ctx context.Context, id string) ([]byte, error) {
 	rows, err := db.DB.QueryContext(ctx, "select id, firstname, lastname, middlename, date_of_birth,addres, department, about_me, phone, email from public.emploees where id in ($1)", id)
 	if err != nil {
 		return nil, err
@@ -165,7 +167,7 @@ func (db *dbClient) GetByID(id string, ctx context.Context) ([]byte, error) {
 	return res, nil
 }
 
-func (db *dbClient) UpEmployee(id string, st *models.DbStruct, ctx context.Context) error {
+func (db *dbClient) UpEmployee(ctx context.Context, id string, st *models.DbStruct) error {
 	query := "UPDATE public.emploees SET "
 
 	v := reflect.ValueOf(*st)

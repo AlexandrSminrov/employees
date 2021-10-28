@@ -96,7 +96,7 @@ func (server *server) AddEmployee(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := server.dbClient.AddEmployee(st, r.Context())
+	id, err := server.dbClient.AddEmployee(r.Context(), st)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintln(w, err)
@@ -118,7 +118,7 @@ func (server *server) GetByID(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Req GetByID ip: %v\n", r.RemoteAddr)
 	vars := mux.Vars(r)
 
-	res, err := server.dbClient.GetByID(vars["id"], r.Context())
+	res, err := server.dbClient.GetByID(r.Context(), vars["id"])
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintln(w, err)
@@ -150,7 +150,7 @@ func (server *server) UpEmployee(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := server.dbClient.UpEmployee(vars["id"], st, r.Context()); err != nil {
+	if err := server.dbClient.UpEmployee(r.Context(), vars["id"], st); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintln(w, err)
 		return
